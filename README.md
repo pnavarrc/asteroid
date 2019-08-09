@@ -58,6 +58,8 @@ Let’s imagine that we want to forbid the usage of calls to `console.log` in a 
 
 Starting from the first tree, we compare the tree with the second tree, removing the properties that are not common to both. We use the resulting partial tree with the remaining examples. The final result will be our **schema**.
 
+![generation of the schema from AST](./img/asteroid-schema.png)
+
 ```yaml
 - CallExpression
   - callee: MemberExpression
