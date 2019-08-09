@@ -1,55 +1,61 @@
-import { generateSchema, triggerESLint } from "../src/ast";
+import { generateSchema, matchRuleBySchema } from "../src/ast";
 
-const TRAINING = [
-  {
-    code: "console.log('b')",
-    pass: false
-  },
-  {
-    code: "console.log('a', 'b')",
-    pass: false
-  },
-  {
-    code: "console.log(a, c)",
-    pass: false
-  }
-];
+const TEST_CASES = {
+  training: [
+    {
+      code: "console.log('a')"
+    },
+    {
+      code: "console.log('b', 'c')"
+    },
+    {
+      code: "console.log(c, d)"
+    }
+  ],
+  invalid: [
+    {
+      code: "console.log('d')"
+    },
+    {
+      code: "console.log(c)"
+    },
+    {
+      code: "console.log('f', h)"
+    },
+    {
+      code: "console.log(g, h)"
+    },
+    {
+      code: "console.log('Some logs', g, h)"
+    }
+  ],
+  valid: [
+    {
+      code: "console.error('Error', e)"
+    },
+    {
+      code: "console.warn('Warning')"
+    }
+  ]
+};
 
-const TEST_CASES = [
-  {
-    code: "console.log('d')",
-    pass: false
-  },
-  {
-    code: "console.log(c)",
-    pass: false
-  },
-  {
-    code: "console.log('f', h)",
-    pass: false
-  },
-  {
-    code: "console.log(g, h)",
-    pass: false
-  },
-  {
-    code: "console.log('Some logs', g, h)",
-    pass: false
-  },
-  {
-    code: "console.error('Error', e)",
-    pass: true
-  }
-];
+const trainingCases = TEST_CASES.training.map(({ code }) => code);
+const schema = generateSchema(trainingCases);
 
-describe("matches test cases", () => {
-  const trainingCases = TRAINING.map(item => item.code);
-  const schema = generateSchema(trainingCases);
+describe("rule is triggered by invalid cases", () => {
+  TEST_CASES.invalid.forEach(({ code }) => {
+    test(code, () => {
+      const matchRule = matchRuleBySchema(schema, code);
+      expect(matchRule).toBe(true);
+    });
+  });
+});
 
-  TEST_CASES.forEach(item => {
-    test(`${item.code}`, () => {
-      const isMatch = triggerESLint(schema, item.code);
-      expect(isMatch).toBe(!item.pass);
+describe("rule is not triggered by valid cases", () => {
+  TEST_CASES.valid.forEach(({ code }) => {
+    test(code, () => {
+      const matchRule = matchRuleBySchema(schema, code);
+      expect(matchRule).toBe(false);
     });
   });
 });
