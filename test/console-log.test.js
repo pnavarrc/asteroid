@@ -1,4 +1,4 @@
-import { generateSchema, matchRuleBySchema } from "../src/ast";
+import runTests from "./utils";
 
 const TEST_CASES = {
   training: [
@@ -39,23 +39,4 @@ const TEST_CASES = {
   ]
 };
 
-const trainingCases = TEST_CASES.training.map(({ code }) => code);
-const schema = generateSchema(trainingCases);
-
-describe("rule is triggered by invalid cases", () => {
-  TEST_CASES.invalid.forEach(({ code }) => {
-    test(code, () => {
-      const matchRule = matchRuleBySchema(schema, code);
-      expect(matchRule).toBe(true);
-    });
-  });
-});
-
-describe("rule is not triggered by valid cases", () => {
-  TEST_CASES.valid.forEach(({ code }) => {
-    test(code, () => {
-      const matchRule = matchRuleBySchema(schema, code);
-      expect(matchRule).toBe(false);
-    });
-  });
-});
+runTests(TEST_CASES);
